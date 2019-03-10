@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# echo "Running tests for Clojure:"
+# lein test
+
+echo "Running tests for Clojurescript:"
+clojure -Atest
