@@ -3,6 +3,9 @@
 An opinionated, declarative GraphQL implementation in Clojure.
 It is powered by [lacinia][lacinia], [pathom][pathom] and [clojure.spec][spec].
 
+<img alt="Icon by kokota: https://www.iconfinder.com/Zerg" width="100" height="100" src="https://user-images.githubusercontent.com/3226564/54084366-77cc6d80-430e-11e9-99cc-8a30dea9f0bb.png" />
+
+
 ### Usage
 
 ```clojure
