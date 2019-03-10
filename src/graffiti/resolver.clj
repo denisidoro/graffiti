@@ -3,7 +3,8 @@
             [quark.collection.ns :as ns]
             [graffiti.eql :as eql]
             [graffiti.query :as query]
-            [com.wsscode.pathom.connect :as pc]))
+            [com.wsscode.pathom.connect :as pc]
+            [clojure.set :as set]))
 
 (defn ident
   [resolver args]
@@ -20,3 +21,10 @@
          vals
          (map eql/as-tree)
          (reduce merge))))
+
+(defn conform-config
+  [config]
+  (set/rename-keys
+    config
+    {:input  ::pc/input
+     :output ::pc/output}))

@@ -1,4 +1,4 @@
-(defproject denisidoro/graffiti "0.1.0"
+(defproject denisidoro/graffiti "0.2.0"
 
   :description "An opinionated, declarative GraphQL implementation in Clojure"
   :url "https://github.com/denisidoro/graffiti"

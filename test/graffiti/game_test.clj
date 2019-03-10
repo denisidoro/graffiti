@@ -1,8 +1,6 @@
 (ns graffiti.game-test
   (:require [clojure.spec.alpha :as s]
-            [graffiti.core :as graffiti]
-            [graffiti.query :as query]
-            [com.wsscode.pathom.connect :as pc]
+            [graffiti.core :as g]
             [graffiti.db :as db]
             [clojure.test :as t]))
 
@@ -21,53 +19,50 @@
 
 ;; resolvers
 
-(pc/defresolver game
-  [env {:game/keys [id]}]
-  {::pc/input  #{:game/id}
-   ::pc/output [:game/id :game/name {:game/designers [:designer/id]}]}
+(g/defresolver game
+  [ctx {:game/keys [id]}]
+  {:input  #{:game/id}
+   :output [:game/id :game/name {:game/designers [:designer/id]}]
+   :spec   :game/entity}
   (db/get-game id))
 
-(pc/defresolver designer
-  [env {:designer/keys [id]}]
-  {::pc/input  #{:designer/id}
-   ::pc/output [:designer/id :designer/name :designer/games]}
+(g/defresolver designer
+  [ctx {:designer/keys [id]}]
+  {:input  #{:designer/id}
+   :output [:designer/id :designer/name :designer/games]}
   (db/get-designer id))
-
-;; schemas
-
-(def objects
-  {:Game     :game/entity
-   :Designer :designer/entity})
-
-(def queries
-  {:game
-   {:type     :Game
-    :resolver game}})
 
 ;; setup
 
-(def mesh
-  (graffiti/compile
-    {:lacinia/objects        objects
-     :lacinia/queries        queries
-     :pathom/extra-resolvers [designer]}))
+(def ^:const options
+  {:lacinia/objects
+   {:Game     :game/entity
+    :Designer :designer/entity}
+
+   :lacinia/queries
+   {:game game}
+
+   :pathom/extra-resolvers
+   [designer]})
+
+(def mesh (g/compile options))
 
 ;; query
 
 (t/is
-  (= (query/graphql mesh "{ game(id: \"1234\") { id name designers { name games { name }}}}")
+  (= (g/graphql mesh "{ game(id: \"1234\") { id name designers { name games { name }}}}")
      {:data {:game {:id        "1234"
-                    :name      "Zertz"
+                    :name      "Uncharted"
                     :designers [{:name  "John"
-                                 :games [{:name "Zertz"}]}]}}}))
+                                 :games [{:name "Uncharted"}]}]}}}))
 
 (t/is
-  (= (query/eql mesh [{[:game/id "1234"]
-                       [:game/id
-                        :game/name {:game/designers [:designer/id
-                                                     :designer/name {:designer/games [:game/name]}]}]}])
+  (= (g/eql mesh [{[:game/id "1234"]
+                   [:game/id
+                    :game/name {:game/designers [:designer/id
+                                                 :designer/name {:designer/games [:game/name]}]}]}])
      {[:game/id "1234"] #:game{:id        "1234"
-                               :name      "Zertz"
+                               :name      "Uncharted"
                                :designers [#:designer{:id    "4567"
                                                       :name  "John"
-                                                      :games [#:game{:name "Zertz"}]}]}}))
+                                                      :games [#:game{:name "Uncharted"}]}]}}))

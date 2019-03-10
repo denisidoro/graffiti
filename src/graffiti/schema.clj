@@ -56,9 +56,8 @@
 
 (defn lacinia-query
   [object-map
-   {:keys [resolver] :as x}]
-  (-> x
-      (dissoc :resolver)
-      (assoc :resolve (keyword/from-resolver resolver)
-             :args (resolver-args object-map resolver))))
+   resolver]
+  {:type    (-> resolver :spec object-map)
+   :resolve (keyword/from-resolver resolver)
+   :args    (resolver-args object-map resolver)})
 

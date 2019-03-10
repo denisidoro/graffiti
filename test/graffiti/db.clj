@@ -5,15 +5,15 @@
   [coll]
   (reduce #(assoc %1 (-> %2 ns/unnamespaced :id) %2) {} coll))
 
-(def items
+(def books
   (indexed
-    #{#:item{:id   "1234"
-             :name "Zertz"}}))
+    #{#:book{:id   "1234"
+             :title "The Great Gatsby"}}))
 
 (def games
   (indexed
     #{#:game{:id        "1234"
-             :name      "Zertz"
+             :name      "Uncharted"
              :designers [{:designer/id "4567"}]}}))
 
 (def designers
@@ -22,7 +22,7 @@
                  :name  "John"
                  :games [{:game/id "1234"}]}}))
 
-(def get-item (partial get items))
+(def get-book (partial get books))
 (def get-game (partial get games))
 (def get-designer (partial get designers))
 

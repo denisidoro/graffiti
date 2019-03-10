@@ -1,44 +1,20 @@
 (ns graffiti.core
   (:refer-clojure :exclude [compile])
   (:require [com.walmartlabs.lacinia.util :as util]
-            [quark.collection.map :as map]
-            [graffiti.resolver :as resolver]
-            [clojure.set :as set]
-            [graffiti.schema :as schema]
             [com.walmartlabs.lacinia.schema :as lacinia.schema]
-            [graffiti.keyword :as keyword]
+            [graffiti.setup :as setup]
             [com.wsscode.pathom.core :as p]
-            [com.wsscode.pathom.connect :as pc]))
-
-(defn ^:private gen-objects
-  [object-map]
-  (->> object-map
-       set/map-invert
-       (map/map-vals (fn [k] {:fields (schema/lacinia-fields object-map k)}))))
-
-(defn ^:private gen-queries
-  [object-map queries]
-  (map/map-vals #(schema/lacinia-query object-map %) queries))
-
-(defn ^:private gen-resolvers
-  [query-map parser]
-  (->> query-map
-       vals
-       (map :resolver)
-       (map (fn [r] [(keyword/from-resolver r) (resolver/pathom r parser)]))
-       (into {})))
-
-(defn ^:private gen-raw-schema
-  [{:lacinia/keys [objects queries]}]
-  (let [object-map (set/map-invert objects)]
-    {:objects (gen-objects object-map)
-     :queries (gen-queries object-map queries)}))
+            [com.wsscode.pathom.connect :as pc]
+            [com.walmartlabs.lacinia :as lacinia]
+            [graffiti.interceptors :as interceptors]
+            [clojure.core.async :as async]
+            [graffiti.resolver :as resolver]))
 
 (defn compile
   [{:lacinia/keys [queries]
     :pathom/keys  [extra-resolvers]
     :as           options}]
-  (let [pathom-resolvers   (concat (->> queries vals (mapv :resolver)) extra-resolvers)
+  (let [pathom-resolvers   (concat (vals queries) extra-resolvers)
         pathom-readers     [p/map-reader
                             pc/parallel-reader
                             pc/open-ident-reader
@@ -51,11 +27,26 @@
                                            ::p/placeholder-prefixes #{">"}}
                               ::p/mutate  pc/mutate-async
                               ::p/plugins pathom-plugins})
-        lacinia-raw-schema (gen-raw-schema options)
-        lacinia-resolvers  (gen-resolvers queries pathom-parser)
+        lacinia-raw-schema (setup/gen-raw-schema options)
+        lacinia-resolvers  (setup/gen-resolvers queries pathom-parser)
         lacinia-schema     (-> lacinia-raw-schema
                                (util/attach-resolvers lacinia-resolvers)
                                lacinia.schema/compile)]
     {:pathom/parser  pathom-parser
      :lacinia/schema lacinia-schema}))
 
+(defmacro defresolver
+  [sym arglist config & body]
+  (let [config' (resolver/conform-config config)]
+    `(pc/defresolver ~sym ~arglist ~config' ~@body)))
+
+(defn graphql
+  [{:lacinia/keys [schema]}
+   query-string]
+  (-> (lacinia/execute schema query-string nil nil)
+      interceptors/simplify))
+
+(defn eql
+  [{:pathom/keys [parser]}
+   query]
+  (async/<!! (parser {} query)))
