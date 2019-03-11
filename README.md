@@ -1,11 +1,13 @@
 # graffiti
 
 An opinionated, declarative GraphQL implementation in Clojure.
+
 It is powered by [lacinia][lacinia], [pathom][pathom] and [clojure.spec][spec].
 
 <img alt="Icon by kokota: https://www.iconfinder.com/Zerg" width="100" height="100" src="https://user-images.githubusercontent.com/3226564/54084366-77cc6d80-430e-11e9-99cc-8a30dea9f0bb.png" />
 
 
+>>>>>>> master
 ### Usage
 
 ```clojure
@@ -19,9 +21,14 @@ It is powered by [lacinia][lacinia], [pathom][pathom] and [clojure.spec][spec].
 ;; resolvers
 (g/defresolver book
   [ctx {:book/keys [id]}]
+<<<<<<< HEAD
+  {:input  #{:book/id}             ; from :book/id
+   :output [:book/id :book/title]} ; we can go to :book/id and :book/title
+=======
   {:input  #{:book/id}            ; from :book/id
    :output [:book/id :book/title] ; we can go to :book/id and :book/title
    :spec   :book/entity}
+>>>>>>> master
   (db/get-book ctx id))
 
 ;; setup definition
@@ -30,7 +37,12 @@ It is powered by [lacinia][lacinia], [pathom][pathom] and [clojure.spec][spec].
    {:Book :book/entity}
 
    :lacinia/queries
+<<<<<<< HEAD
+   {:book {:resolver book
+           :type     :Book}}})
+=======
    {:book book}})
+>>>>>>> master
 
 ;; compilation
 (def mesh (g/compile options))
@@ -63,7 +75,11 @@ However, it encourages you to define schemas in a non-idiomatic way:
     :args    {:id {:type 'ID}}
     :resolve :book}}}}
 ```
+<<<<<<< HEAD
+Considering that in your application you're most likely already defining schemas using [plumatic/schema][schema] or [clojure.spec][spec], redefining them is simply cumbersome.
+=======
 Considering that in your application you're most likely already defining schemas using [plumatic/schema][schema] or [clojure.spec][spec], redefining it is simply cumbersome.
+>>>>>>> master
 
 [pathom] is a graph parser with steroids. It has all the bells and whistles but if you want to use it as a GraphQL server you have to change your mental model a bit and write some boilerplate.
 

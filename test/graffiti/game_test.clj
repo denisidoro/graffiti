@@ -40,7 +40,8 @@
     :Designer :designer/entity}
 
    :lacinia/queries
-   {:game game}
+   {:game {:resolver game
+           :type     :Game}}
 
    :pathom/extra-resolvers
    [designer]})

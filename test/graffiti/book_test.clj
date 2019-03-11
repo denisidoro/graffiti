@@ -15,8 +15,7 @@
 (g/defresolver book
   [ctx {:book/keys [id]}]
   {:input  #{:book/id}
-   :output [:book/id :book/title]
-   :spec   :book/entity}
+   :output [:book/id :book/title]}
   (db/get-book id))
 
 ;; setup
@@ -26,7 +25,8 @@
    {:Book :book/entity}
 
    :lacinia/queries
-   {:book book}})
+   {:book {:resolver book
+           :type     :Book}}})
 
 (def mesh (g/compile options))
 

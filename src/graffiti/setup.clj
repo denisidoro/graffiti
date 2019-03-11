@@ -15,11 +15,16 @@
   [object-map queries]
   (map/map-vals #(schema/lacinia-query object-map %) queries))
 
+(defn ^:private gen-resolver
+  [parser {:keys [resolver]}]
+  [(keyword/from-resolver resolver)
+  (resolver/pathom resolver parser)])
+
 (defn gen-resolvers
   [query-map parser]
   (->> query-map
        vals
-       (map (fn [r] [(keyword/from-resolver r) (resolver/pathom r parser)]))
+       (map #(gen-resolver parser %))
        (into {})))
 
 (defn gen-raw-schema
