@@ -1,7 +1,8 @@
 {:deps
  {denisidoro/quark        {:mvn/version "0.6.0"}
-  com.wsscode/pathom      {:mvn/version "0.32.0"}
-  com.walmartlabs/lacinia {:mvn/version "0.7.9"}}
+  com.wsscode/pathom      {:mvn/version "2.2.12"}
+  com.walmartlabs/lacinia {:mvn/version "0.32.0"}
+  provisdom/spectomic     {:mvn/version "0.7.9"}}
 
  :paths
  ["src"]

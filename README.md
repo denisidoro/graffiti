@@ -1,5 +1,7 @@
 # graffiti
 
+[![CircleCI](https://circleci.com/gh/denisidoro/graffiti/tree/master.svg?style=svg)](https://circleci.com/gh/denisidoro/graffiti/tree/master)
+
 An opinionated, declarative GraphQL implementation in Clojure.
 
 It is powered by [lacinia][lacinia], [pathom][pathom] and [clojure.spec][spec].
