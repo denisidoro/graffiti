@@ -32,8 +32,9 @@
         lacinia-schema     (-> lacinia-raw-schema
                                (util/attach-resolvers lacinia-resolvers)
                                lacinia.schema/compile)]
-    {:pathom/parser  pathom-parser
-     :lacinia/schema lacinia-schema}))
+    {:pathom/parser      pathom-parser
+     :lacinia/raw-schema lacinia-raw-schema
+     :lacinia/schema     lacinia-schema}))
 
 (defmacro defresolver
   [sym arglist config & body]

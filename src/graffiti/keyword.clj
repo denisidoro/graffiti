@@ -9,7 +9,7 @@
   (let [get-spec (s/get-spec ident)]
     (if (keyword? get-spec)
       get-spec
-      (->> ident s/describe (map/find-first keyword?)))))
+      (->> ident s/describe flatten reverse (map/find-first keyword?)))))
 
 (defn from-resolver
   [resolver]
