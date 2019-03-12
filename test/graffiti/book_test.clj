@@ -32,14 +32,16 @@
 
 ;; query
 
-(t/is
-  (= (g/graphql mesh "{ book(id: \"1234\") { id title }}")
-     {:data {:book {:id    "1234"
-                    :title "The Great Gatsby"}}}))
+(t/deftest graphql-query
+  (t/is
+    (= (g/graphql mesh "{ book(id: \"1234\") { id title }}")
+       {:data {:book {:id    "1234"
+                      :title "The Great Gatsby"}}})))
 
-(t/is
-  (= (g/eql mesh [{[:book/id "1234"]
-                   [:book/id
-                    :book/title]}])
-     {[:book/id "1234"] #:book{:id    "1234"
-                               :title "The Great Gatsby"}}))
+(t/deftest eql-query
+  (t/is
+    (= (g/eql mesh [{[:book/id "1234"]
+                     [:book/id
+                      :book/title]}])
+       {[:book/id "1234"] #:book{:id    "1234"
+                                 :title "The Great Gatsby"}})))

@@ -50,20 +50,22 @@
 
 ;; query
 
-(t/is
-  (= (g/graphql mesh "{ game(id: \"1234\") { id name designers { name games { name }}}}")
-     {:data {:game {:id        "1234"
-                    :name      "Uncharted"
-                    :designers [{:name  "John"
-                                 :games [{:name "Uncharted"}]}]}}}))
+(t/deftest graphql-query
+  (t/is
+    (= (g/graphql mesh "{ game(id: \"1234\") { id name designers { name games { name }}}}")
+       {:data {:game {:id        "1234"
+                      :name      "Uncharted"
+                      :designers [{:name  "John"
+                                   :games [{:name "Uncharted"}]}]}}})))
 
-(t/is
-  (= (g/eql mesh [{[:game/id "1234"]
-                   [:game/id
-                    :game/name {:game/designers [:designer/id
-                                                 :designer/name {:designer/games [:game/name]}]}]}])
-     {[:game/id "1234"] #:game{:id        "1234"
-                               :name      "Uncharted"
-                               :designers [#:designer{:id    "4567"
-                                                      :name  "John"
-                                                      :games [#:game{:name "Uncharted"}]}]}}))
+(t/deftest eql-query
+  (t/is
+    (= (g/eql mesh [{[:game/id "1234"]
+                     [:game/id
+                      :game/name {:game/designers [:designer/id
+                                                   :designer/name {:designer/games [:game/name]}]}]}])
+       {[:game/id "1234"] #:game{:id        "1234"
+                                 :name      "Uncharted"
+                                 :designers [#:designer{:id    "4567"
+                                                        :name  "John"
+                                                        :games [#:game{:name "Uncharted"}]}]}})))
