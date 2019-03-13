@@ -1,14 +1,8 @@
 (ns graffiti.book-test
-  (:require [clojure.spec.alpha :as s]
+  (:require [graffiti.specs]
             [graffiti.core :as g]
             [graffiti.db :as db]
             [clojure.test :as t]))
-
-;; specs
-
-(s/def :book/id string?)
-(s/def :book/title string?)
-(s/def :book/entity (s/keys :opt [:book/id :book/title]))
 
 ;; resolvers
 

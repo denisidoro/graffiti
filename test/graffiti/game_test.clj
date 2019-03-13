@@ -1,23 +1,8 @@
 (ns graffiti.game-test
-  (:require [clojure.spec.alpha :as s]
-            [graffiti.core :as g]
-            [graffiti.spec :as gs]
+  (:require [graffiti.core :as g]
+            [graffiti.specs :as specs]
             [graffiti.db :as db]
             [clojure.test :as t]))
-
-;; specs
-
-(declare game)
-
-(gs/defentity designer
-  {:designer/id    string?
-   :designer/name  string?
-   :designer/games (s/coll-of game)})
-
-(gs/defentity game
-  {:game/id        string?
-   :game/name      string?
-   :game/designers (s/coll-of designer)})
 
 ;; resolvers
 
@@ -37,8 +22,8 @@
 
 (def ^:const options
   {:lacinia/objects
-   {:Game     game
-    :Designer designer}
+   {:Game     specs/game
+    :Designer specs/designer}
 
    :lacinia/queries
    {:game {:type  :Game
@@ -47,7 +32,6 @@
    :pathom/resolvers
    [game-resolver designer-resolver]})
 
-options
 (def mesh (g/compile options))
 
 ;; query
