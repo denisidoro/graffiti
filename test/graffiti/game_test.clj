@@ -1,32 +1,33 @@
 (ns graffiti.game-test
   (:require [clojure.spec.alpha :as s]
             [graffiti.core :as g]
+            [graffiti.spec :as gs]
             [graffiti.db :as db]
             [clojure.test :as t]))
 
 ;; specs
 
-(s/def :game/id string?)
-(s/def :game/name string?)
-(s/def :game/designers (s/coll-of :designer/entity))
-(s/def :game/entity (s/keys :opt [:game/id :game/name :game/designers]))
+(declare game)
 
-(s/def :designer/id string?)
-(s/def :designer/name string?)
-(s/def :designer/name string?)
-(s/def :designer/games (s/coll-of :game/entity))
-(s/def :designer/entity (s/keys :opt [:designer/id :designer/name :designer/games]))
+(gs/defentity designer
+  {:designer/id    string?
+   :designer/name  string?
+   :designer/games (s/coll-of game)})
+
+(gs/defentity game
+  {:game/id        string?
+   :game/name      string?
+   :game/designers (s/coll-of designer)})
 
 ;; resolvers
 
-(g/defresolver game
+(g/defresolver game-resolver
   [ctx {:game/keys [id]}]
   {:input  #{:game/id}
-   :output [:game/id :game/name {:game/designers [:designer/id]}]
-   :spec   :game/entity}
+   :output [:game/id :game/name {:game/designers [:designer/id]}]}
   (db/get-game id))
 
-(g/defresolver designer
+(g/defresolver designer-resolver
   [ctx {:designer/keys [id]}]
   {:input  #{:designer/id}
    :output [:designer/id :designer/name :designer/games]}
@@ -36,16 +37,17 @@
 
 (def ^:const options
   {:lacinia/objects
-   {:Game     :game/entity
-    :Designer :designer/entity}
+   {:Game     game
+    :Designer designer}
 
    :lacinia/queries
    {:game {:type  :Game
            :input #{:game/id}}}
 
    :pathom/resolvers
-   [game designer]})
+   [game-resolver designer-resolver]})
 
+options
 (def mesh (g/compile options))
 
 ;; query

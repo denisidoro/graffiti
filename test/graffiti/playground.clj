@@ -29,3 +29,5 @@
 (spec-ex :maker/blue-cars)
 (spec-ex :maker/red-cars)
 
+(spec-ex :game/designers)
+
