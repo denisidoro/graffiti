@@ -7,16 +7,16 @@
             [clojure.set :as set]))
 
 (defn ident
-  [resolver args]
-  (let [input (->> resolver ::pc/input first)]
-    [input (get args (ns/unnamespaced input))]))
+  [input args]
+  (let [input' (first input)]
+    [input' (get args (ns/unnamespaced input'))]))
 
 (defn pathom
-  [resolver parser]
+  [input parser]
   (fn [context args value]
     (->> (query/eql
            {:pathom/parser parser}
-           [{(ident resolver args)
+           [{(ident input args)
              (-> context ex/selections-tree eql/from-selection-tree)}])
          vals
          (map eql/as-tree)

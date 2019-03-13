@@ -40,11 +40,11 @@
     :Designer :designer/entity}
 
    :lacinia/queries
-   {:game {:resolver game
-           :type     :Game}}
+   {:game {:type  :Game
+           :input #{:game/id}}}
 
-   :pathom/extra-resolvers
-   [designer]})
+   :pathom/resolvers
+   [game designer]})
 
 (def mesh (g/compile options))
 

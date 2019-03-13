@@ -31,8 +31,8 @@ It is powered by [lacinia][lacinia], [pathom][pathom] and [clojure.spec][spec].
    {:Book :book/entity}
 
    :lacinia/queries
-   {:book {:resolver book
-           :type     :Book}}})
+   {:book {:input #{:book/id}
+           :type  :Book}}})
 
 ;; compilation
 (def mesh (g/compile options))

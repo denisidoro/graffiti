@@ -2,7 +2,8 @@
   (:require [camel-snake-kebab.core :as snake]
             [clojure.spec.alpha :as s]
             [com.wsscode.pathom.connect :as pc]
-            [quark.collection.map :as map]))
+            [quark.collection.map :as map]
+            [clojure.string :as str]))
 
 (defn from-ident
   [ident]
@@ -14,6 +15,12 @@
 (defn from-resolver
   [resolver]
   (keyword (::pc/sym resolver)))
+
+(defn from-type+input
+  [type input]
+  (keyword (name type) (-> (str input)
+                           (str/replace #"[#\{\}:]" "")
+                           (str/replace #"/" "_"))))
 
 (defn sanitize
   [k]

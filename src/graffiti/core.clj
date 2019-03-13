@@ -12,14 +12,15 @@
 
 (defn compile
   [{:lacinia/keys [queries]
-    :pathom/keys  [extra-resolvers]
+    :pathom/keys  [resolvers]
     :as           options}]
-  (let [pathom-resolvers   (concat (->> queries vals (map :resolver)) extra-resolvers)
+  (let [
+        ; pathom-resolvers   (concat (->> queries vals (map :resolver)) extra-resolvers)
         pathom-readers     [p/map-reader
                             pc/parallel-reader
                             pc/open-ident-reader
                             p/env-placeholder-reader]
-        pathom-plugins     [(pc/connect-plugin {::pc/register pathom-resolvers})
+        pathom-plugins     [(pc/connect-plugin {::pc/register resolvers})
                             p/error-handler-plugin
                             p/trace-plugin]
         pathom-parser      (p/parallel-parser

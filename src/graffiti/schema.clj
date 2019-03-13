@@ -72,16 +72,15 @@
        ns/unnamespaced))
 
 (defn resolver-args
-  [object-map resolver]
-  (->> resolver
-       ::pc/input
+  [object-map input]
+  (->> input
        (map (fn [k] [k {:type (lacinia-type object-map k)}]))
        (into {}) ns/unnamespaced))
 
 (defn lacinia-query
   [object-map
-   {:keys [resolver type]}]
+   {:keys [input type]}]
   {:type    type
-   :resolve (keyword/from-resolver resolver)
-   :args    (resolver-args object-map resolver)})
+   :resolve (keyword/from-type+input type input)
+   :args    (resolver-args object-map input)})
 

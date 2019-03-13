@@ -25,8 +25,11 @@
    {:Book :book/entity}
 
    :lacinia/queries
-   {:book {:resolver book
-           :type     :Book}}})
+   {:book {:input #{:book/id}
+           :type  :Book}}
+
+   :pathom/resolvers
+   [book]})
 
 (def mesh (g/compile options))
 
