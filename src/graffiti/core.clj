@@ -11,25 +11,30 @@
             [graffiti.resolver :as resolver]))
 
 (defn compile
-  [{:lacinia/keys [queries]
-    :pathom/keys  [resolvers]
+  [{:lacinia/keys [queries raw-schema-update-fn resolver-map-update-fn]
+    :pathom/keys  [resolvers readers plugins parser]
+    :or           {raw-schema-update-fn   identity
+                   resolver-map-update-fn identity}
     :as           options}]
-  (let [
-        ; pathom-resolvers   (concat (->> queries vals (map :resolver)) extra-resolvers)
-        pathom-readers     [p/map-reader
-                            pc/parallel-reader
-                            pc/open-ident-reader
-                            p/env-placeholder-reader]
-        pathom-plugins     [(pc/connect-plugin {::pc/register resolvers})
-                            p/error-handler-plugin
-                            p/trace-plugin]
-        pathom-parser      (p/parallel-parser
-                             {::p/env     {::p/reader               pathom-readers
-                                           ::p/placeholder-prefixes #{">"}}
-                              ::p/mutate  pc/mutate-async
-                              ::p/plugins pathom-plugins})
-        lacinia-raw-schema (setup/gen-raw-schema options)
-        lacinia-resolvers  (setup/gen-resolvers queries pathom-parser)
+  (let [pathom-readers     (or readers
+                               [p/map-reader
+                                pc/parallel-reader
+                                pc/open-ident-reader
+                                p/env-placeholder-reader])
+        pathom-plugins     (or plugins
+                               [(pc/connect-plugin {::pc/register resolvers})
+                                p/error-handler-plugin
+                                p/trace-plugin])
+        pathom-parser      (or parser
+                               (p/parallel-parser
+                                 {::p/env     {::p/reader               pathom-readers
+                                               ::p/placeholder-prefixes #{">"}}
+                                  ::p/mutate  pc/mutate-async
+                                  ::p/plugins pathom-plugins}))
+        lacinia-raw-schema (-> (setup/gen-raw-schema options)
+                               raw-schema-update-fn)
+        lacinia-resolvers  (-> (setup/gen-resolvers queries pathom-parser)
+                               resolver-map-update-fn)
         lacinia-schema     (-> lacinia-raw-schema
                                (util/attach-resolvers lacinia-resolvers)
                                lacinia.schema/compile)]
