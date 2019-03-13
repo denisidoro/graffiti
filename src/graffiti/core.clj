@@ -8,7 +8,8 @@
             [com.walmartlabs.lacinia :as lacinia]
             [graffiti.interceptors :as interceptors]
             [clojure.core.async :as async]
-            [graffiti.resolver :as resolver]))
+            [graffiti.resolver :as resolver]
+            [graffiti.query :as query]))
 
 (defn compile
   [{:lacinia/keys [queries raw-schema-update-fn resolver-map-update-fn]
@@ -38,22 +39,20 @@
         lacinia-schema     (-> lacinia-raw-schema
                                (util/attach-resolvers lacinia-resolvers)
                                lacinia.schema/compile)]
-    {:pathom/parser      pathom-parser
+    {:graffiti/options   options
+     :pathom/parser      pathom-parser
      :lacinia/raw-schema lacinia-raw-schema
      :lacinia/schema     lacinia-schema}))
 
 (defmacro defresolver
   [sym arglist config & body]
-  (let [config' (resolver/conform-config config)]
-    `(pc/defresolver ~sym ~arglist ~config' ~@body)))
+  (let [config+ (resolver/conform-config config)]
+    `(pc/defresolver ~sym ~arglist ~config+ ~@body)))
 
 (defn graphql
-  [{:lacinia/keys [schema]}
-   query-string]
-  (-> (lacinia/execute schema query-string nil nil)
-      interceptors/simplify))
+  [mesh query-str]
+  (query/graphql mesh query-str))
 
 (defn eql
-  [{:pathom/keys [parser]}
-   query]
-  (async/<!! (parser {} query)))
+  [mesh query]
+  (query/eql mesh query))

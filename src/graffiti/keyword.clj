@@ -28,3 +28,12 @@
         k-name (name k)]
     (keyword (snake/->kebab-case k-ns) k-name)))
 
+(defn fix-todo
+  [mesh k]
+  (let [k-ns   (keyword (namespace k))
+        k-name (name k)
+        k-ns+  (-> mesh
+                   (get-in [:graffiti/options :lacinia/objects k-ns])
+                   namespace)]
+    (keyword k-ns+ k-name)))
+

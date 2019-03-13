@@ -18,7 +18,7 @@
 (defn ^:private gen-resolver
   [parser {:keys [input type]}]
   [(keyword/from-type+input type input)
-  (resolver/pathom input parser)])
+   (resolver/pathom input parser)])
 
 (defn gen-resolvers
   [query-map parser]

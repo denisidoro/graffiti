@@ -14,13 +14,13 @@
     q))
 
 (defn from-selection-tree
-  [q]
+  [q mesh]
   (->> q
        (walk/postwalk
          (fn [{:keys [selections] :as x}]
            (cond
              (qualified-keyword? x)
-             (keyword/sanitize x)
+             (keyword/fix-todo mesh x)
              :else
              (if selections
                selections

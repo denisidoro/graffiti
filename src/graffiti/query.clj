@@ -4,9 +4,10 @@
             [clojure.core.async :as async]))
 
 (defn graphql
-  [{:lacinia/keys [schema]}
+  [{:lacinia/keys [schema]
+    :as mesh}
    query-string]
-  (-> (lacinia/execute schema query-string nil nil)
+  (-> (lacinia/execute schema query-string nil {:graffiti/mesh mesh})
       interceptors/simplify))
 
 (defn eql
