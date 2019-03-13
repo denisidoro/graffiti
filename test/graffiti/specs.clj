@@ -4,14 +4,14 @@
 
 (declare game)
 
-(s/def :book/id string?)
-(s/def :book/title string?)
-(s/def :book/entity (s/keys :opt [:book/id :book/title]))
+(gs/defentity book
+  {:book/id        string?
+   :book/title string?})
 
 (gs/defentity designer
-  {:designer/id    string?
-   :designer/name  string?
-   :designer/games (s/coll-of game)})
+  {:designer/id        string?
+   :designer/full-name string?
+   :designer/games     (s/coll-of game)})
 
 (gs/defentity game
   {:game/id        string?

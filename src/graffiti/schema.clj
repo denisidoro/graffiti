@@ -67,14 +67,14 @@
   (->> k
        s/describe
        last
-       (map (fn [k] [k {:type (lacinia-type object-map k)}]))
+       (map (fn [k] [(keyword/graphql k) {:type (lacinia-type object-map k)}]))
        (into {})
        ns/unnamespaced))
 
 (defn resolver-args
   [object-map input]
   (->> input
-       (map (fn [k] [k {:type (lacinia-type object-map k)}]))
+       (map (fn [k] [(keyword/graphql k) {:type (lacinia-type object-map k)}]))
        (into {}) ns/unnamespaced))
 
 (defn lacinia-query

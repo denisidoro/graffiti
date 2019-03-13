@@ -29,4 +29,8 @@
 
 (defn as-tree
   [x]
-  (ns/unnamespaced x))
+  (walk/postwalk
+    (fn [y]
+      (if (keyword? y)
+        (-> y name keyword/graphql)
+        y)) x))

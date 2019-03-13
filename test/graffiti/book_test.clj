@@ -1,7 +1,7 @@
 (ns graffiti.book-test
-  (:require [graffiti.specs]
-            [graffiti.core :as g]
+  (:require [graffiti.core :as g]
             [graffiti.db :as db]
+            [graffiti.specs :as specs]
             [clojure.test :as t]))
 
 ;; resolvers
@@ -16,7 +16,7 @@
 
 (def ^:const options
   {:lacinia/objects
-   {:Book :book/entity}
+   {:Book specs/book}
 
    :lacinia/queries
    {:book {:input #{:book/id}

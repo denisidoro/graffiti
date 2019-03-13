@@ -5,9 +5,6 @@
             [graffiti.setup :as setup]
             [com.wsscode.pathom.core :as p]
             [com.wsscode.pathom.connect :as pc]
-            [com.walmartlabs.lacinia :as lacinia]
-            [graffiti.interceptors :as interceptors]
-            [clojure.core.async :as async]
             [graffiti.resolver :as resolver]
             [graffiti.query :as query]))
 

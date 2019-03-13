@@ -19,9 +19,9 @@
               :designers [{:designer/id "4567"}]}}
 
      :designers
-     #{#:designer{:id    "4567"
-                  :name  "John"
-                  :games [{:game/id "1234"}]}}}))
+     #{#:designer{:id        "4567"
+                  :full-name "John"
+                  :games     [{:game/id "1234"}]}}}))
 
 (defn get-entity
   [entity id]
