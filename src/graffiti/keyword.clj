@@ -65,11 +65,14 @@
          keyword)))
 
 (defn fix-todo
-  [mesh k]
+  [{:graffiti/keys [eql-conformer]
+    :lacinia/keys  [objects]}
+    k]
   (let [k-ns   (keyword (namespace k))
         k-name (name k)
-        k-ns+  (-> mesh
-                   (get-in [:graffiti/options :lacinia/objects k-ns])
-                   namespace)]
-    (eql (keyword k-ns+ k-name))))
+        k-ns+  (-> objects
+                   (get k-ns)
+                   namespace)
+        k-edn  (keyword k-ns+ k-name)]
+    (eql-conformer k-edn)))
 

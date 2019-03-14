@@ -14,13 +14,13 @@
     q))
 
 (defn from-selection-tree
-  [q mesh]
+  [options q]
   (->> q
        (walk/postwalk
          (fn [{:keys [selections] :as x}]
            (cond
              (qualified-keyword? x)
-             (keyword/fix-todo mesh x)
+             (keyword/fix-todo options x)
              :else
              (if selections
                selections
@@ -28,9 +28,9 @@
        remove-nils))
 
 (defn as-tree
-  [x]
+  [{:graffiti/keys [graphql-conformer]} x]
   (walk/postwalk
     (fn [y]
       (if (keyword? y)
-        (-> y name keyword/graphql)
+        (-> y name graphql-conformer)
         y)) x))

@@ -6,30 +6,29 @@
             [graffiti.keyword :as keyword]))
 
 (defn ^:private gen-objects
-  [object-map]
-  (->> object-map
-       set/map-invert
-       (map/map-vals (fn [k] {:fields (schema/lacinia-fields object-map k)}))))
+  [{:lacinia/keys [objects] :as options}]
+  (->> objects
+       (map/map-vals (fn [k] {:fields (schema/lacinia-fields options k)}))))
 
 (defn ^:private gen-queries
-  [object-map queries]
-  (map/map-vals #(schema/lacinia-query object-map %) queries))
+  [{:lacinia/keys [queries] :as options}]
+  (map/map-vals #(schema/lacinia-query options %) queries))
 
 (defn ^:private gen-resolver
   [parser
    resolver-name
    {:keys [input output type]}]
   [(keyword/from-type+input type input)
-   (resolver/pathom resolver-name input output parser)])
+   (resolver/pathom input output parser)])
 
 (defn gen-resolvers
-  [query-map parser]
-  (->> query-map
+  [{:lacinia/keys [queries]}
+   parser]
+  (->> queries
        (map (fn [[k v]] (gen-resolver parser k v)))
        (into {})))
 
 (defn gen-raw-schema
-  [{:lacinia/keys [objects queries]}]
-  (let [inverted-object-map (set/map-invert objects)]
-    {:objects (gen-objects inverted-object-map)
-     :queries (gen-queries inverted-object-map queries)}))
+  [options]
+  {:objects (gen-objects options)
+   :queries (gen-queries options)})

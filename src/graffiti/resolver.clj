@@ -5,8 +5,7 @@
             [graffiti.query :as query]
             [com.wsscode.pathom.connect :as pc]
             [clojure.set :as set]
-            [clojure.walk :as walk]
-            [graffiti.keyword :as keyword]))
+            [clojure.walk :as walk]))
 
 (defn ident
   [input output args]
@@ -15,27 +14,32 @@
     output))
 
 (defn graphql-keywords
-  [m]
+  [{:graffiti/keys [graphql-conformer]}
+   m]
   (walk/postwalk
     (fn [x]
       (if (keyword? x)
-        (keyword/graphql x)
+        (graphql-conformer x)
         x))
     m))
 
 (defn pathom
-  [resolver-name input output parser]
+  [input output parser]
   (fn [{:graffiti/keys [mesh] :as context}
        args
        value]
-    (->> (query/eql
-           {:pathom/parser parser}
-           [{(ident input output args)
-             (-> context ex/selections-tree (eql/from-selection-tree mesh))}])
-         vals
-         (map eql/as-tree)
-         (reduce merge)
-         graphql-keywords )))
+    (let [options   (:graffiti/options mesh)
+          ident     (ident input output args)
+          fields    (->> context
+                         ex/selections-tree
+                         (eql/from-selection-tree options))
+          eql-query [{ident fields}]
+          results   (query/eql {:pathom/parser parser} eql-query)]
+      (->> results
+           vals
+           (map #(eql/as-tree options %))
+           (reduce merge)
+           (graphql-keywords options)))))
 
 (defn conform-config
   [config]

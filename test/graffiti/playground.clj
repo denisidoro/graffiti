@@ -10,7 +10,7 @@
   {:describe (s/describe k)
    :form     (s/form k)
    :get-spec (s/get-spec k)
-   :lacinia  (schema/lacinia-type {:car/entity :Car} k)
+   :lacinia  (#'schema/lacinia-type {:car/entity :Car} k)
    :datomic  (-> [k] spectomic/datomic-schema first)})
 
 (s/def :car/id (s/nilable string?))

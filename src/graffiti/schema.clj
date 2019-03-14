@@ -55,7 +55,7 @@
       many? (list 'list value)
       :else value)))
 
-(defn lacinia-type
+(defn ^:private lacinia-type
   [object-map k]
   (->> [k]
        spectomic/datomic-schema
@@ -63,25 +63,28 @@
        (datomic-schema->lacinia-type k object-map)))
 
 (defn lacinia-fields
-  [object-map k]
+  [{:lacinia/keys  [inverted-objects]
+    :graffiti/keys [graphql-conformer]}
+   k]
   (->> k
        s/describe
        last
-       (map (fn [k] [(keyword/graphql k) {:type (lacinia-type object-map k)}]))
+       (map (fn [k] [(graphql-conformer k) {:type (lacinia-type inverted-objects k)}]))
        (into {})
        ns/unnamespaced))
 
 (defn resolver-args
-  [object-map input]
+  [{:graffiti/keys [graphql-conformer] :as options}
+   input]
   (->> input
-       (map (fn [k] [(keyword/graphql k) {:type (lacinia-type object-map k)}]))
+       (map (fn [k] [(graphql-conformer k) {:type (lacinia-type options k)}]))
        (into {}) ns/unnamespaced))
 
 (defn lacinia-query
-  [object-map
+  [options
    {:keys [input type]}]
-  {:type    type
-   :resolve (keyword/from-type+input type input)
-   :args    (or (and input (resolver-args object-map input))
-                {})})
+  (map/assoc-if
+    {:type    type
+     :resolve (keyword/from-type+input type input)}
+    :args (or (and input (resolver-args options input)))))
 
