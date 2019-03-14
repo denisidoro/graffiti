@@ -82,5 +82,6 @@
    {:keys [input type]}]
   {:type    type
    :resolve (keyword/from-type+input type input)
-   :args    (resolver-args object-map input)})
+   :args    (or (and input (resolver-args object-map input))
+                {})})
 

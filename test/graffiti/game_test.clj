@@ -2,6 +2,7 @@
   (:require [graffiti.core :as g]
             [graffiti.specs :as specs]
             [graffiti.db :as db]
+            [matcher-combinators.test]
             [clojure.test :as t]))
 
 ;; resolvers
@@ -26,8 +27,10 @@
     :Designer specs/designer}
 
    :lacinia/queries
-   {:game {:type  :Game
-           :input #{:game/id}}}
+   {:game     {:type  :Game
+               :input #{:game/id}}
+    :maingame {:type  :Game
+               :input #{}}}
 
    :pathom/resolvers
    [game-resolver designer-resolver]})
@@ -38,22 +41,22 @@
 
 (t/deftest graphql-query
   (t/is
-    (= (g/graphql mesh "{ game(id: \"1234\") { id name designers { id fullName games { name }}}}")
-       {:data {:game {:id        "1234"
-                      :name      "Uncharted"
-                      :designers [{:id "4567"
-                                   :fullName "John"
-                                   :games [{:name "Uncharted"}]}]}}})))
+    (match? (g/graphql mesh "{ game(id: \"1234\") { id name designers { id fullName games { name }}}}")
+            {:data {:game {:id        "1234"
+                           :name      "Uncharted"
+                           :designers [{:id       "4567"
+                                        :fullName "John"
+                                        :games    [{:name "Uncharted"}]}]}}})))
 
 (t/deftest eql-query
   (t/is
-    (= (g/eql mesh [{[:game/id "1234"]
-                     [:game/id
-                      :game/name {:game/designers [:designer/id
-                                                   :designer/full-name
-                                                   {:designer/games [:game/name]}]}]}])
-       {[:game/id "1234"] #:game{:id        "1234"
-                                 :name      "Uncharted"
-                                 :designers [#:designer{:id    "4567"
-                                                        :full-name  "John"
-                                                        :games [#:game{:name "Uncharted"}]}]}})))
+    (match? (g/eql mesh [{[:game/id "1234"]
+                          [:game/id
+                           :game/name {:game/designers [:designer/id
+                                                        :designer/full-name
+                                                        {:designer/games [:game/name]}]}]}])
+            {[:game/id "1234"] #:game{:id        "1234"
+                                      :name      "Uncharted"
+                                      :designers [#:designer{:id        "4567"
+                                                             :full-name "John"
+                                                             :games     [#:game{:name "Uncharted"}]}]}})))

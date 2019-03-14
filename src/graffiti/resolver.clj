@@ -23,14 +23,14 @@
     m))
 
 (defn pathom
-  [input parser]
+  [resolver-name input parser]
   (fn [{:graffiti/keys [mesh] :as context}
        args
        value]
     (->> (query/eql
            {:pathom/parser parser}
            [{(ident input args)
-                     (-> context ex/selections-tree (eql/from-selection-tree mesh))}])
+             (-> context ex/selections-tree (eql/from-selection-tree mesh))}])
          vals
          (map eql/as-tree)
          (reduce merge)
