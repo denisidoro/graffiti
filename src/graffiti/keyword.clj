@@ -18,8 +18,8 @@
 
 (defn from-type+input
   [type input]
-  (keyword (name type) (-> (str input)
-                           (str/replace #"[#\{\}:]" "")
+  (keyword (name type) (-> (str (or (seq input) :none))
+                           (str/replace #"[#\{\}:\(\)]" "")
                            (str/replace #"/" "_"))))
 
 (defn snake-fn

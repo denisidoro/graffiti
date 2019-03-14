@@ -9,9 +9,10 @@
             [graffiti.keyword :as keyword]))
 
 (defn ident
-  [input args]
-  (let [input' (first input)]
-    [input' (get args (ns/unnamespaced input'))]))
+  [input output args]
+  (if-let [input' (first input)]
+    [input' (get args (ns/unnamespaced input'))]
+    output))
 
 (defn graphql-keywords
   [m]
@@ -23,18 +24,18 @@
     m))
 
 (defn pathom
-  [input parser]
+  [resolver-name input output parser]
   (fn [{:graffiti/keys [mesh] :as context}
        args
        value]
     (->> (query/eql
            {:pathom/parser parser}
-           [{(ident input args)
-                     (-> context ex/selections-tree (eql/from-selection-tree mesh))}])
+           [{(ident input output args)
+             (-> context ex/selections-tree (eql/from-selection-tree mesh))}])
          vals
          (map eql/as-tree)
          (reduce merge)
-         graphql-keywords)))
+         graphql-keywords )))
 
 (defn conform-config
   [config]

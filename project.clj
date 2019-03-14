@@ -1,4 +1,4 @@
-(defproject denisidoro/graffiti "0.9.0"
+(defproject denisidoro/graffiti "0.10.0"
 
   :description "An opinionated, declarative GraphQL implementation in Clojure"
   :url "https://github.com/denisidoro/graffiti"
@@ -18,7 +18,8 @@
             [lein-auto "0.1.3"]
             [lein-changelog "0.3.2"]]
 
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]]}}
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]
+  [nubank/matcher-combinators "0.7.0"]]}}
 
   :deploy-repositories [["releases" :clojars]]
 
