@@ -5,7 +5,7 @@
 (declare game)
 
 (gs/defentity book
-  {:book/id        string?
+  {:book/id    string?
    :book/title string?})
 
 (gs/defentity designer
@@ -17,3 +17,7 @@
   {:game/id        string?
    :game/name      string?
    :game/designers (s/coll-of designer)})
+
+(gs/defentity message
+  {:message/id   string?
+   :message/text string?})

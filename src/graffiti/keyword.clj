@@ -67,7 +67,7 @@
 (defn fix-todo
   [{:graffiti/keys [eql-conformer]
     :lacinia/keys  [objects]}
-    k]
+   k]
   (let [k-ns   (keyword (namespace k))
         k-name (name k)
         k-ns+  (-> objects

@@ -86,5 +86,16 @@
   (map/assoc-if
     {:type    type
      :resolve (keyword/from-type+input type input)}
-    :args (or (and input (resolver-args options input)))))
+    :args (and (some-> input seq)
+               (resolver-args options input))))
+
+(defn lacinia-mutation
+  [options
+   {:keys [type mutation]}]
+  (let [{::pc/keys [params]} mutation]
+    (map/assoc-if
+      {:type    type
+       :resolve (keyword/from-type+input type params)}
+      :args (and (some-> params seq)
+                 (resolver-args options params)))))
 

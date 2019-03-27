@@ -3,7 +3,23 @@
             [graffiti.specs :as specs]
             [graffiti.db :as db]
             [matcher-combinators.test]
-            [clojure.test :as t]))
+            [clojure.test :as t]
+            [selvage.test.flow :refer [*world* defflow]]))
+
+;; helpers
+
+(defn create-system!
+  [options world]
+  (assoc world :database (db/new-database)
+               :lacinia/mesh (g/compile options)))
+
+(defn graphql
+  [world & args]
+  (apply g/graphql (:lacinia/mesh world) args))
+
+(defn eql
+  [world & args]
+  (apply g/eql (:lacinia/mesh world) args))
 
 ;; resolvers
 
@@ -12,6 +28,13 @@
   {:input  #{:game/id}
    :output [:game/id :game/name {:game/designers [:designer/id]}]}
   (db/get-game id))
+
+(g/defmutation send-message
+  [ctx {:keys [message/text]}]
+  {:params [:message/text]
+   :output [:message/id :message/text]}
+  {:message/id   123
+   :message/text text})
 
 (g/defresolver maingame-resolver
   [ctx {:game/keys [id]}]
@@ -29,47 +52,57 @@
 (def ^:const options
   {:lacinia/objects
    {:Game     specs/game
-    :Designer specs/designer}
+    :Designer specs/designer
+    :Message  specs/message}
 
    :lacinia/queries
-   {:game     {:type  :Game
-               :input #{:game/id}}
-    :maingame {:type   :Game
+   {:game     {:type   :Game
+               :input  #{:game/id}
+               :params #{}}                                 ; TODO: handle :params
+    :mainGame {:type   :Game
                :output :game/main}}
+
+   :lacinia/mutations
+   {:sendMessage {:type     :Message
+                  :mutation send-message}}
 
    :pathom/resolvers
    [game-resolver designer-resolver maingame-resolver]})
 
-(def mesh (g/compile options))
-
 ;; query
 
-(g/eql mesh [{:game/main [:game/id]}])
+(defflow my-first-test
 
-(t/deftest graphql-simple-query
-  (t/is
-    (match? (g/graphql mesh "{ game(id: \"1234\") { id name designers { id fullName games { name }}}}")
-            {:data {:game {:id        "1234"
-                           :name      "Uncharted"
-                           :designers [{:id       "4567"
-                                        :fullName "John"
-                                        :games    [{:name "Uncharted"}]}]}}})))
+  (partial create-system! options)
 
-(t/deftest eql-simple-query
-  (t/is
-    (match? (g/eql mesh [{[:game/id "1234"]
-                          [:game/id
-                           :game/name {:game/designers [:designer/id
-                                                        :designer/full-name
-                                                        {:designer/games [:game/name]}]}]}])
-            {[:game/id "1234"] #:game{:id        "1234"
-                                      :name      "Uncharted"
-                                      :designers [#:designer{:id        "4567"
-                                                             :full-name "John"
-                                                             :games     [#:game{:name "Uncharted"}]}]}})))
+  (t/testing "simple GraphQl query"
+    (t/is
+      (match? (graphql *world* "query ($id: String!) { game(id: $id) { id name designers { id fullName games { name }}}}" {:id "1234"})
+              {:data {:game {:id        "1234"
+                             :name      "Uncharted"
+                             :designers [{:id       "4567"
+                                          :fullName "John"
+                                          :games    [{:name "Uncharted"}]}]}}})))
 
-(t/deftest resolver-without-input
-  (t/is
-    (match? (g/graphql mesh "{ maingame { name }}")
-            {:data {:maingame {:name "Uncharted"}}})))
+  (t/testing "simple EQL query"
+    (t/is
+      (match? (eql *world* [{[:game/id "1234"]
+                             [:game/id
+                              :game/name {:game/designers [:designer/id
+                                                           :designer/full-name
+                                                           {:designer/games [:game/name]}]}]}])
+              {[:game/id "1234"] #:game{:id        "1234"
+                                        :name      "Uncharted"
+                                        :designers [#:designer{:id        "4567"
+                                                               :full-name "John"
+                                                               :games     [#:game{:name "Uncharted"}]}]}})))
 
+  (t/testing "resolver without input"
+    (t/is
+      (match? (graphql *world* "{ mainGame { name }}")
+              {:data {:mainGame {:name "Uncharted"}}})))
+
+  (t/testing "simple GraphQL mutation"
+    (t/is
+      (match? (graphql *world* "mutation { sendMessage(text: \"hello\") { text }}")
+              {:data {:sendMessage {:text "hello"}}}))))

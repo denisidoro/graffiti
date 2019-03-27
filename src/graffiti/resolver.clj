@@ -23,6 +23,14 @@
         x))
     m))
 
+(defn resolver-results
+  [parser options eql-query]
+  (->> (query/eql {:pathom/parser parser} eql-query)
+       vals
+       (map #(eql/as-tree options %))
+       (reduce merge)
+       (graphql-keywords options)))
+
 (defn pathom
   [input output parser]
   (fn [{:graffiti/keys [mesh] :as context}
@@ -33,13 +41,8 @@
           fields    (->> context
                          ex/selections-tree
                          (eql/from-selection-tree options))
-          eql-query [{ident fields}]
-          results   (query/eql {:pathom/parser parser} eql-query)]
-      (->> results
-           vals
-           (map #(eql/as-tree options %))
-           (reduce merge)
-           (graphql-keywords options)))))
+          eql-query [{ident fields}]]
+      (resolver-results parser options eql-query))))
 
 (defn conform-config
   [config]

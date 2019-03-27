@@ -24,10 +24,15 @@
                   :games     [{:game/id "1234"}]}}}))
 
 (defn get-entity
-  [entity id]
-  (get-in db [entity id]))
+  ([entity id]
+   (get-entity entity nil id))
+  ([entity database id]
+   (get-in (or (some-> database deref) db) [entity id])))
 
 (def get-book (partial get-entity :books))
 (def get-game (partial get-entity :games))
 (def get-designer (partial get-entity :designers))
 
+(defn new-database
+  []
+  (atom db))
