@@ -3,24 +3,20 @@
   (:require [com.walmartlabs.lacinia.util :as util]
             [com.walmartlabs.lacinia.schema :as lacinia.schema]
             [graffiti.setup :as setup]
+            [graffiti.schema.core :as schema]
             [com.wsscode.pathom.core :as p]
             [com.wsscode.pathom.connect :as pc]
             [graffiti.resolver :as resolver]
-            [graffiti.keyword :as keyword]
-            [clojure.set :as set]
             [graffiti.mutation :as mutation]
             [graffiti.query :as query]))
 
 (defn compile
-  [{:lacinia/keys [objects mutations raw-schema-update-fn resolver-map-update-fn]
+  [{:lacinia/keys [mutations raw-schema-update-fn resolver-map-update-fn]
     :pathom/keys  [resolvers readers plugins parser]
     :or           {raw-schema-update-fn   identity
                    resolver-map-update-fn identity}
     :as           options}]
-  (let [options+            (merge {:graffiti/eql-conformer     keyword/eql
-                                    :graffiti/graphql-conformer keyword/graphql
-                                    :lacinia/inverted-objects   (set/map-invert objects)}
-                                   options)
+  (let [options+            (setup/enhance-options options)
         pathom-readers      (or readers
                                 [p/map-reader
                                  pc/parallel-reader
@@ -38,7 +34,7 @@
                                                 ::p/placeholder-prefixes #{">"}}
                                    ::p/mutate  pc/mutate-async
                                    ::p/plugins pathom-plugins}))
-        lacinia-raw-schema  (-> (setup/gen-raw-schema options+)
+        lacinia-raw-schema  (-> (schema/spec->graphql options+)
                                 raw-schema-update-fn)
         lacinia-resolvers   (-> (setup/gen-resolvers+mutations options pathom-parser)
                                 resolver-map-update-fn)

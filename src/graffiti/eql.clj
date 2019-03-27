@@ -1,7 +1,6 @@
 (ns graffiti.eql
   (:require [clojure.walk :as walk]
-            [graffiti.keyword :as keyword]
-            [quark.collection.ns :as ns]))
+            [graffiti.keyword :as keyword]))
 
 (defn ^:private remove-nils
   [q]

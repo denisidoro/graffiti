@@ -1,4 +1,4 @@
-(ns graffiti.schema
+(ns graffiti.schema.field
   (:require [quark.collection.ns :as ns]
             [clojure.spec.alpha :as s]
             [provisdom.spectomic.core :as spectomic]

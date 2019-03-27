@@ -1,7 +1,7 @@
 (ns graffiti.playground
   (:require [clojure.spec.alpha :as s]
             [clojure.test :as t]
-            [graffiti.schema :as schema]
+            [graffiti.field :as schema]
             [provisdom.spectomic.core :as spectomic]
             [quark.collection.map :as map]))
 
