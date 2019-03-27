@@ -4,7 +4,8 @@
             [provisdom.spectomic.core :as spectomic]
             [com.wsscode.pathom.connect :as pc]
             [graffiti.keyword :as keyword]
-            [quark.collection.map :as map]))
+            [quark.collection.map :as map]
+            [graffiti.schema.spec :as ss]))
 
 (def datomic-value-type->lacinia-primitive
   {:db.type/string  'String
@@ -62,6 +63,11 @@
        first
        (datomic-schema->lacinia-type k object-map)))
 
+(defn ^:private schema-map
+  [k inverted-objects]
+  (map/assoc-if {:type (lacinia-type inverted-objects k)}
+                :description (some-> ss/registry deref (get k) :desc)))
+
 (defn lacinia-fields
   [{:lacinia/keys  [inverted-objects]
     :graffiti/keys [graphql-conformer]}
@@ -69,7 +75,7 @@
   (->> k
        s/describe
        last
-       (map (fn [k] [(graphql-conformer k) {:type (lacinia-type inverted-objects k)}]))
+       (map (fn [k] [(graphql-conformer k) (schema-map k inverted-objects)]))
        (into {})
        ns/unnamespaced))
 

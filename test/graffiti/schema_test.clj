@@ -14,7 +14,13 @@
            :type  :Book}}})
 
 (t/deftest second-test
-  (t/is (match? {:objects {:Book {:fields {:id {:type '(non-null String)}, :title {:type '(non-null String)}}}},
-                 :queries {:book {:type :Book, :resolve :Book/book_id, :args {:id {:type '(non-null String)}}}}}
+  (t/is (match? {:objects
+                 {:Book {:fields {:id    {:type '(non-null String)}
+                                  :title {:type        '(non-null String)
+                                          :description "Book title"}}}}
+                 :queries
+                 {:book {:type    :Book
+                         :resolve :Book/book_id
+                         :args    {:id {:type '(non-null String)}}}}}
                 (-> options setup/enhance-options schema/spec->graphql))))
 

@@ -6,7 +6,7 @@
 
 (gs/defentity book
   {:book/id    string?
-   :book/title string?})
+   :book/title {:schema string? :desc "Book title"}})
 
 (gs/defentity designer
   {:designer/id        string?
